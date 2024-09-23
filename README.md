@@ -23,7 +23,7 @@
             : 각각의 박스들에 class를 부여하여 따로 조정할수있게하여 구분 및 확인이 편하게 이루어질수있었음. 또한 GUI에 있는 PyQt5.QLabel이나 PyQt5.QGroupBox로는 각 객체의 수정 및 보완에 있어 한계점을 발견해 PyQt5.GraphcisView를 통해 이를 보완 및 해결할 수있었음.
   
   ### 2.실시간 데이터 송수신(2023)
-     1. 서버DB 연동 및 실시간 GUI를 활용한 데이터 확인
+  1. 서버DB 연동 및 실시간 GUI를 활용한 데이터 확인
        1) 개발 내용
           - KT에서 제공하는 서버내의 DB를 활용하여 Arduino센서의 데이터를 서버로 전송. (pymysql 이용)
           - 추가적으로 실시간 데이터 확인 및 데이터 핸들링을 위하여 GUI를 만듬. (실시간 animation을 이용하기 위해 animation.FuncAnimation이라는 함수 사용)

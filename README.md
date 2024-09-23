@@ -27,6 +27,19 @@
        1) 개발 내용
           - KT에서 제공하는 서버내의 DB를 활용하여 Arduino센서의 데이터를 서버로 전송. (pymysql 이용)
           - 추가적으로 실시간 데이터 확인 및 데이터 핸들링을 위하여 GUI를 만듬. (실시간 animation을 이용하기 위해 animation.FuncAnimation이라는 함수 사용)
+          - 윈도우 환경이 아닌 CLI환경(LINUX)에서도 실시간 데이터를 활용할수 있도록 채팅소켓을 열어 활용 가능하도록 추가함. (socketserver modulue 활용)
+          - 추가적으로 데이터 송수신 및 외부 접속시도들을 파악하기위해 Wireshark라는 app도 이용해봄. (보안파트 지식 부족)
+       2) Trouble Shooting
+          - 문제 배경
+           : 일반적인 PyQt5에서 지원하는 QLable에는 정적인 그래프만 진행 가능하였으며 실시간으로 데이터를 적용하려고하여도 DeadLock에 걸리는 경우들이 발생함.
+          - 해결 방법
+           : 데이터를 실시간으로 송수신가능한 Thread를 만들고 또한 animation을 진행가능한 plot을 생성하였으며 그또한 Thread를 활용하여 실시간으로 plotting이 가능하도록 진행하였음.
+
+  ### 3.실시간 데이터 송수신(2023)
+  1. 서버DB 연동 및 실시간 GUI를 활용한 데이터 확인
+       1) 개발 내용
+          - KT에서 제공하는 서버내의 DB를 활용하여 Arduino센서의 데이터를 서버로 전송. (pymysql 이용)
+          - 추가적으로 실시간 데이터 확인 및 데이터 핸들링을 위하여 GUI를 만듬. (실시간 animation을 이용하기 위해 animation.FuncAnimation이라는 함수 사용)
        2) Trouble Shooting
           - 문제 배경
            : 일반적인 PyQt5에서 지원하는 QLable에는 정적인 그래프만 진행 가능하였으며 실시간으로 데이터를 적용하려고하여도 DeadLock에 걸리는 경우들이 발생함.

@@ -239,10 +239,10 @@
   
       def run(self):
           while self.flag:
-              self.con = ps.connect(host = str("211.253.11.217"),
-                                port = 11000,
-                                user = str("kkamduo"),
-                                password = str("ghdwotjr12"),
+              self.con = ps.connect(host = str("IP"),
+                                port = PORT,
+                                user = str("ID"),
+                                password = str("PASSWORD"),
                                 db = str("test"),
                                 charset = 'utf8')
               
@@ -250,9 +250,7 @@
               data_col = tuple(data_table.columns)
   
               data_fil = []
-              # ind = data_table.index
-              #시간복잡도 O(N^2)
-  
+
               for each_col in data_col:
                   data_fil.append([each_col,data_table[each_col]])
   

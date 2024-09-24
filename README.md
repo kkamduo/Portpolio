@@ -322,13 +322,13 @@
       - 문제 배경
         : 여러가지 모델들을 사용할때 각 모델들에 사용되는 모듈들의 버전들이 충돌하는 경우가 발생.
       - 해결 방법
-        : Docker을 활용하여 각각의 모델에 적용시 버전 및 개발환경을 고정시켜 충돌하는 경우를 사전 제거함.
+        : Window WSL2 와 Docker을 활용하여 각각의 모델에 적용시 버전 및 개발환경을 고정시켜 충돌하는 경우를 사전 제거함.
 
    #### 4. 개인 데이터 송수신앱
     1) 개발 내용
-      - 핸드폰 android환경을 통해 촬영하거나 얻은 데이터 또는 rasberrypi를 이용해 얻은 데이터를 실시간으로 상호작용하여 확인 및 
-      연동하는 작업을 수행하는 app을 제작.
-      - android환경은 kotlins언어를 활용하였으며 메인서버는 rasberrypi에 두어 핸드폰과는 bluetooth를 활용하여 연결함.
+      - 핸드폰 android환경을 통해 촬영하거나 얻은 데이터 또는 rasberrypi를 이용해 얻은 데이터를 실시간으로 상호작용하여 
+      데이터 확인 및 연동하는 작업을 수행하는 app을 제작.
+      - android환경 구축은 kotlins언어를 활용하였으며 메인서버는 rasberrypi에 두어 핸드폰과는 bluetooth를 활용하여 연결함.
     2) Trouble Shooting
       - 문제 배경
         : bluetooth 연결당시 rasberrypi 가 가지고있는 여러가지 포트들을 이해하지 못하고 bluetooth 연결방식에 대해 제대로 이해하지 
@@ -337,6 +337,60 @@
         : rasberrypi에 직접 서버를 가지는 것보다 인터넷 망 내에 서버를 구축하여 그 안에서 서로 상호작용하도록 하면 속도 및 연결 문제를 
         쉽게 해결할 수 있을 것으로 보임.
 
+  #### 주요 Kotlin 블루투스 연결 코드 및 데이터 송신 코드
+    // 블루투스 연결파트
+    private fun connectBluetooth(device: BluetoothDevice) {
+        try {
+            bluetoothSocket = device.createRfcommSocketToServiceRecord(SERVICE_UUID)
+            bluetoothSocket?.connect()
+            Log.d(TAG, "Bluetooth connected. Device is $deviceAddress")
+            textView.text = "Bluetooth connected."
+
+            outputStream = bluetoothSocket!!.outputStream
+            inputStream = bluetoothSocket!!.inputStream
+
+            // 데이터 수신을 위한 스레드 시작
+            Thread {
+                val buffer = ByteArray(1024)
+                var bytes: Int
+                try {
+                    while (true) {
+                        bytes = inputStream.read(buffer)
+                        if (bytes == -1) {
+                            Log.d(TAG, "End of stream reached. Closing connection.")
+                            break
+                        }
+                        val incomingMessage = String(buffer, 0, bytes)
+                        Log.d(TAG, "InputStream: $incomingMessage")
+                        runOnUiThread {
+                            // 수신된 데이터를 UI에 표시하거나 필요한 작업 수행
+                        }
+                    }
+                } catch (e: IOException) {
+                    Log.e(TAG, "Error reading from InputStream. Closing connection.", e)
+                } finally {
+                    disconnectBluetooth()
+                }
+            }.start()
+
+        } catch (e: IOException) {
+            Log.e(TAG, "Error connecting to Bluetooth device.", e)
+            textView.text = "Error connecting to Bluetooth device."
+        }
+    }
+    
+    // 블루투스 메시지 송신파트
+    private fun sendBluetoothMessage(message: String) {
+        try {
+            outputStream.write(message.toByteArray())
+            Log.d(TAG, "Message sent: $message")
+            editText.text.clear()
+        } catch (e: IOException) {
+            Log.e(TAG, "Error sending message.", e)
+            textView.text = "Error sending message."
+        }
+    }
+    
    #### 5. 엑셀데이터 가시화 및 관리 GUI
     1) 개발 내용
       - 여러 엑셀파일들에 들어가있는 내용들을 각 항목별 및 세부사항을 취합하여 가시성 및 관리성을 높이는 GUI를 개발.

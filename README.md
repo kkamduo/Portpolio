@@ -4,15 +4,57 @@
   ### 1.NIA 빅데이터 구축사업(2022)
   #### 1. 진안 홍삼 데이터 구축사업
        1) 개발 내용
-          - 기본적인 영상처리 작업 내용들을 통해 홍삼내부의 특이점들을 도출해냄. (opencv module을 사용함)
+          - X-ray이미지를 이용한 기본적인 영상처리 작업 내용들을 통해 홍삼내부의 특이점들을 도출해냄. 
+          (opencv module을 사용함)
           - 추가적으로 YOLOv5를 활용하여 학습을 진행해보았으나 초기에 정확한 특이점 구분 및 라벨링이 이루어지지 
           않아 난항을 겪었으나 앞서 말한 영상처리들을 통해 조금더 나은 데이터 핸들링을 통해 좋은 결과물들을 도출함.
        2) Trouble Shooting
           - 문제 배경
-           : 영상의 전체 픽셀을 이용하여 평균값을 도출하다보니 영상에서 특이점의 크기 및 픽셀수에 따라 편차가 너무 큼.
+           : 영상의 전체 픽셀을 이용하여 평균값을 도출하다보니 영상마다 특이점의 크기 및 픽셀수에 따라 편차가 너무 큼.
           - 해결 방법
            : 초기 영상처리를 통한 특이점 도출 부분에서 영상전체의 평균픽셀을 확용하여 작업을 진행했다면 이후에는 픽셀을 국소 부분으로 나누어 
-           평균값을 추출해내 비교하여 조금더 특이점을 쉽게 찾아낼수있었으며 영상의 크기가 컸기에 Thread를 활용하여 동시에 작업들을 진행해 최적화 하였음.
+           평균값을 추출해내 비교하여 조금더 특이점을 쉽게 찾아낼수있었으며 영상의 크기가 컸기에 Thread를 활용하여 동시에 작업들을 진행해 최적화함.
+           
+  CODE
+  ####
+    for img_range in range(0,1960,1):
+      new_img_line = np.array([])
+      img_gray_line = img_gray[0:1080,img_range]
+
+      img_gray_line_sort = np.array([each for each in img_gray_line if (50< each <230)])
+      img_gray_mean = img_gray_line_sort.mean()
+
+      if img_gray_mean > 0 :
+          sort_min = min(img_gray_line_sort)
+          sort_min_index = np.argmin(img_gray_line_sort)
+          sort_max = max(img_gray_line_sort)
+          sort_max_index = np.argmax(img_gray_line_sort)
+          index_range = abs(sort_max_index - sort_min_index)
+  
+          test_a = (img_gray_mean - sort_min)
+          test_b = (sort_max - img_gray_mean)
+          test_c = int((test_a + test_b)/2)
+  
+          for line in img_gray_line:
+              if line > test_c or line < 50 or line > 230:
+                  line = 0
+              else:
+                  line = 255
+              new_img_line = np.append(new_img_line, line)
+              new_img_line = np.array([new_img_line])
+  
+          if test_img.size == 0:
+              test_img = new_img_line
+          else:
+              test_img = np.append(test_img, new_img_line, axis = 0)
+      else :
+          if test_img.size == 0:
+              test_img = np.zeros((1,1080))
+          else:
+              test_img = np.append(test_img , np.zeros((1,1080)), axis = 0)
+
+    test_img = np.uint8(test_img.T)
+  ####
   #### 2. 종자 구분
        1) 개발 내용
           - Threadhold 값을 통한 배경과 씨앗들을 구분해 오토라벨링 툴을 개발함. (opencv module을 사용함)

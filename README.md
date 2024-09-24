@@ -15,8 +15,8 @@
         : 초기 영상처리를 통한 특이점 도출 부분에서 영상전체의 평균픽셀을 확용하여 작업을 진행했다면 이후에는 픽셀을 국소 부분으로 나누어 
         평균값을 추출해내 비교하여 조금더 특이점을 쉽게 찾아낼수있었으며 영상의 크기가 컸기에 Thread를 활용하여 동시에 작업들을 진행해 최적화함.
            
-  CODE
-  ####
+  
+  #### 국소 부위 추출 CODE
     for img_range in range(0,1960,1):
       new_img_line = np.array([])
       img_gray_line = img_gray[0:1080,img_range]
@@ -54,7 +54,7 @@
               test_img = np.append(test_img , np.zeros((1,1080)), axis = 0)
 
     test_img = np.uint8(test_img.T)
-  ####
+
   #### 2. 종자 구분
        1) 개발 내용
           - Threadhold 값을 통한 배경과 씨앗들을 구분해 오토라벨링 툴을 개발함. (opencv module을 사용함)
@@ -68,6 +68,117 @@
           - 해결 방법
             : 각각의 박스들에 class를 부여하여 따로 조정할수있게하여 구분 및 확인이 편하게 이루어질수있었음. 또한 GUI에 있는 PyQt5.QLabel이나 
             PyQt5.QGroupBox로는 각 객체의 수정 및 보완에 있어 한계점을 발견해 PyQt5.GraphcisView를 통해 이를 보완 및 해결할 수있었음.
+
+  #### GrapchisItemGroup 객체 CODE
+    class Testset(QGraphicsItemGroup):
+      global pop_num_list
+  
+      #GraphicsItem 생성시 기본 Default값 지정
+      def __init__(self,i,x,y,pix):
+          super().__init__()
+          self.cnt = i
+          self.pix = pix
+          self.bb = QGraphicsRectItem()
+          self.pos_x = x
+          self.pos_y = y
+          self.bb.setRect(self.pos_x-(self.pix), self.pos_y-(self.pix), 2*self.pix, 2*self.pix)
+          self.hover_flag = False
+  
+          #초기 좌표에 따라 박스 팬 색상설정
+          if (self.pos_x-self.pix > 0 and self.pos_y-self.pix > 0 and self.pos_x+self.pix < 1200 and self.pos_y+self.pix < 900): 
+              self.bb.setPen(Qt.green)
+          else : self.bb.setPen(Qt.red)
+  
+          #좌측상단 박스 라벨 번호 추가
+          self.lab = QGraphicsTextItem(str(i))
+          self.lab.setPos(self.pos_x-50, self.pos_y-50)
+          self.fontt = self.lab.font()
+          self.fontt.setPointSize(20)
+          self.lab.setFont(self.fontt)
+  
+          #GraphicsItem 그룹 지정 (라벨 + 박스)
+          self.addToGroup(self.bb)
+          self.addToGroup(self.lab)
+  
+          #GraphicsItem 선택,이동,HoverEvent 지정
+          self.setAcceptHoverEvents(True)
+          self.setFlag(QGraphicsItem.ItemIsMovable)
+          self.setFlag(QGraphicsItem.ItemIsSelectable)
+          self.box_pos = (self.pos_x, self.pos_y)
+  
+      #GraphicsItem 마우스 이벤트 지정
+      def mousePressEvent(self, event):
+          if event.buttons() == Qt.RightButton:
+              ui.img_view_scene.removeItem(self)
+              pop_num_list.append(self.cnt)
+              pop_num_list.sort()
+              ui.img_view_scene.boxes[self.cnt-1] = None
+  
+          if event.buttons() == Qt.LeftButton:
+              self.hover_flag = True
+              
+      #GraphicsItem Hover 이벤트 지정 (박스이동)
+      def hoverMoveEvent(self, event):
+          if self.hover_flag :
+              # print(self.pos_x,self.pos_y)
+              # print(self.pos_x + self.pos().x(),self.pos_y + self.pos().y())
+              self.box_pos = (self.pos_x + self.pos().x(),self.pos_y + self.pos().y())
+              # if (event.scenePos().x()-self.pix > 0 and event.scenePos().y()-self.pix > 0 
+              #     and event.scenePos().y()+self.pix < 900 and event.scenePos().x()+self.pix < 1200): 
+              if (self.box_pos[0]-self.pix > 0 and self.box_pos[1]-self.pix > 0 
+                  and self.box_pos[1]+self.pix < 900 and self.box_pos[0]+self.pix < 1200): 
+                  self.bb.setPen(Qt.green)
+              else : 
+                  self.bb.setPen(Qt.red)
+                  
+              self.scene().clearSelection()
+  
+          self.hover_flag = False
+
+  #### GUI 내 실시간 수정 가능 Label 객체 CODE
+    class graphicsScene(QtWidgets.QGraphicsScene):
+      #라벨 생성시 기본 Default값 지정
+      def __init__ (self, i, pix, parent=None):
+          super(graphicsScene, self).__init__ (parent)
+          self.i = i
+          self.x = 0
+          self.y = 0
+          self.boxes = []
+          self.test_num = 0
+          self.flag = False
+          self.pix = pix
+  
+      #라벨 마우스 이벤트 지정
+      def mousePressEvent(self, event) :
+          #박스 생성
+          if event.buttons() == Qt.LeftButton and self.flag:
+              if pop_num_list == [] :
+                  self.x = event.scenePos().x()
+                  self.y = event.scenePos().y()
+  
+                  self.test = Testset(self.i, self.x, self.y, self.pix)
+                  self.boxes.append(self.test)
+                  self.addItem(self.test)
+  
+                  self.i += 1
+  
+          #박스 제거
+              elif pop_num_list != []:
+                  self.x = event.scenePos().x()
+                  self.y = event.scenePos().y()
+                  self.test_num = pop_num_list.pop(0)
+  
+                  self.test = Testset(self.test_num, self.x, self.y, self.pix)
+                  self.boxes[self.test_num-1] =  self.test
+                  self.addItem(self.test)
+  
+      #Ctrl 키에 대한 플래그 지정
+      def keyPressEvent(self, event):
+          if event.key() == Qt.Key_Control :
+              self.flag = True
+  
+      def keyReleaseEvent(self, event):
+          self.flag = False
   
   ### 2.개인 연습 및 개인 프로젝트(2023)
   #### 1. 서버DB 연동 및 실시간 GUI를 활용한 데이터 확인

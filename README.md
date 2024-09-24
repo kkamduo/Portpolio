@@ -2,7 +2,7 @@
 
 ## 진행 프로젝트 소개
   ### 1.NIA 빅데이터 구축사업(2022)
-  #### 1. 진안 홍삼 데이터 구축사업
+   #### 1. 진안 홍삼 데이터 구축사업
     1) 개발 내용
       - X-ray이미지를 이용한 기본적인 영상처리 작업 내용들을 통해 홍삼내부의 특이점들을 도출해냄. 
       (opencv module을 사용함)
@@ -283,6 +283,35 @@
       - 해결 방법
         : 현재 하드웨어 업그레이드를 제외한 방법을 찾는 중이나 해결하지못함. 다른 모델들을 통해 개선할수 있는지 확인하기 위해 CNN모델 외 
         Transformer 모델 등을 활용하였으나 하드웨어 자원이 부족해 진행중지.
+
+   #### 각 Object의 bbox의 좌표를 추출해 ROI내에 포함되는지 확인
+     if len(outputs[i]) > 0:
+      for j, (output, conf) in enumerate(zip(outputs[i], confs)):
+        bboxes = output[0:4]
+        id = output[4]
+        cls = output[5]
+        is_counterable = True
+    
+      ##중심좌표 추가 및 오브젝트가 area에 있는지 없는지 판단##
+        cx = int(output[0]+((output[2] - output[0])/2))
+        cy = int(output[1]+((output[3] - output[1])/2))
+
+        bbox_pos = [cx,cy]
+        bbox_pos_G = Point(cx,cy)
+        
+        global cnt, data
+
+        if poly !=[] and bbox_pos_G.within(poly):
+          if id not in data:
+            cnt += 1
+            data.append(id)
+
+          else :
+            if id in data :
+              cnt -= 1
+              data.remove(id)
+
+        cv2.circle(im0, bbox_pos,5, color=(255,255,0), thickness = -1)
            
    #### 3. 딥러닝 모델따라 구현해보기 및 사용해보기
     1) 개발 내용

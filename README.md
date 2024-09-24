@@ -184,7 +184,8 @@
   #### 1. 서버DB 연동 및 실시간 GUI를 활용한 데이터 확인
     1) 개발 내용
       - KT에서 제공하는 서버내의 DB를 활용하여 Arduino센서의 데이터를 서버로 전송. (pymysql 이용)
-      - 추가적으로 실시간 데이터 확인 및 데이터 핸들링을 위하여 GUI를 만듬. (실시간 animation을 이용하기 위해 animation.FuncAnimation이라는 함수 사용)
+      - 추가적으로 실시간 데이터 확인 및 데이터 핸들링을 위하여 GUI를 만듬. 
+      (실시간 animation을 이용하기 위해 animation.FuncAnimation이라는 함수 사용)
       - 윈도우 환경이 아닌 CLI환경(LINUX)에서도 실시간 데이터를 활용할수 있도록 채팅소켓을 열어 활용 가능하도록 추가함. (socketserver modulue 활용)
       - 추가적으로 데이터 송수신 및 외부 접속시도들을 파악하기위해 Wireshark라는 app도 이용해봄. (보안파트 지식 부족)
     2) Trouble Shooting
@@ -193,6 +194,86 @@
       - 해결 방법
         : 데이터를 실시간으로 송수신가능한 Thread를 만들고 또한 animation을 진행가능한 plot을 생성하였으며 그또한 Thread를 활용하여 
         실시간으로 plotting이 가능하도록 진행하였음.
+
+  #### 실시간 Arduino 송수신 Thread CODE
+    class WorkerThread(QThread):
+    # 데이터를 보내기 위한 시그널 정의
+    update_data = pyqtSignal(float, float)
+
+    def __init__(self):
+        QThread.__init__(self)
+        try :
+            self.arduino = serial.Serial('COM5', 9600)
+        except:
+            pass
+
+    def run(self):
+        while True:
+            y = self.arduino.readline()
+            y = y.decode()[:-2]
+            y = re.split(" ", y)
+            print(y)
+
+            try:
+                tmp = float(y[1])
+                hum = float(y[3])
+                print(tmp, hum)
+
+                # 시그널 발생
+                self.update_data.emit(tmp, hum)
+
+            except:
+                pass
+
+    def cleanup(self):
+        self.arduino.close()
+
+  #### 실시간 MYSQL 송수신 Thread CODE
+    class WorkerThread2(QThread):
+      # 데이터를 보내기 위한 시그널 정의
+      update_data2 = pyqtSignal(float, float)
+  
+      def __init__(self):
+          QThread.__init__(self)
+          self.flag = True
+  
+      def run(self):
+          while self.flag:
+              self.con = ps.connect(host = str("211.253.11.217"),
+                                port = 11000,
+                                user = str("kkamduo"),
+                                password = str("ghdwotjr12"),
+                                db = str("test"),
+                                charset = 'utf8')
+              
+              data_table = pd.read_sql("select * from 0404test", self.con)
+              data_col = tuple(data_table.columns)
+  
+              data_fil = []
+              # ind = data_table.index
+              #시간복잡도 O(N^2)
+  
+              for each_col in data_col:
+                  data_fil.append([each_col,data_table[each_col]])
+  
+              try:
+                  tmp2 = float(list(data_fil[1][1])[-1])
+                  hum2 = float(list(data_fil[2][1])[-1])
+                  print(tmp2, hum2)
+  
+                  # 시그널 발생
+                  self.update_data2.emit(tmp2, hum2)
+  
+              except:
+                  pass
+              time.sleep(1)
+  
+      def stop(self):
+          self.flag = False
+          self.con.close()
+          self.quit()
+          print("종료")
+          self.wait(3000)
   
   #### 2. ROI 지정 후 물체추적
     1) 개발 내용

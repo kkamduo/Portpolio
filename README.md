@@ -56,18 +56,18 @@
     test_img = np.uint8(test_img.T)
 
   #### 2. 종자 구분
-       1) 개발 내용
-          - Threadhold 값을 통한 배경과 씨앗들을 구분해 오토라벨링 툴을 개발함. (opencv module을 사용함)
-          - 1차적으로 각 영상마다 평균 픽셀값들을 계산해 Threadholding을 통해 씨앗의 대략적 위치를 도출해낸 이후 각각의 씨앗 객체에 bbox를 부여함. 
-          (opencv module을 사용함)
-          - 추가적인 bbox의 수정을 위해 bbox class를 생성하였으며 각각의 위치 및 크기를 조정할수있도록 설정하여 오토라벨링의 쉬운 수정과 결함들을 
-          제거하는 방법을 이용함. (PyQt5.GraphcisView를 통해 주로 핸들링함)
-       2) Trouble Shooting
-          - 문제 배경
-            : 각각의 박스들을 이동시키고 크기를 조절하는데 객체에 대한 특성을 부여하지않아 조절 및 수정하기가 힘들었음.
-          - 해결 방법
-            : 각각의 박스들에 class를 부여하여 따로 조정할수있게하여 구분 및 확인이 편하게 이루어질수있었음. 또한 GUI에 있는 PyQt5.QLabel이나 
-            PyQt5.QGroupBox로는 각 객체의 수정 및 보완에 있어 한계점을 발견해 PyQt5.GraphcisView를 통해 이를 보완 및 해결할 수있었음.
+    1) 개발 내용
+      - Threadhold 값을 통한 배경과 씨앗들을 구분해 오토라벨링 툴을 개발함. (opencv module을 사용함)
+      - 1차적으로 각 영상마다 평균 픽셀값들을 계산해 Threadholding을 통해 씨앗의 대략적 위치를 도출해낸 이후 각각의 씨앗 객체에 bbox를 부여함. 
+      (opencv module을 사용함)
+      - 추가적인 bbox의 수정을 위해 bbox class를 생성하였으며 각각의 위치 및 크기를 조정할수있도록 설정하여 오토라벨링의 쉬운 수정과 결함들을 
+      제거하는 방법을 이용함. (PyQt5.GraphcisView를 통해 주로 핸들링함)
+    2) Trouble Shooting
+      - 문제 배경
+        : 각각의 박스들을 이동시키고 크기를 조절하는데 객체에 대한 특성을 부여하지않아 조절 및 수정하기가 힘들었음.
+      - 해결 방법
+        : 각각의 박스들에 class를 부여하여 따로 조정할수있게하여 구분 및 확인이 편하게 이루어질수있었음. 또한 GUI에 있는 PyQt5.QLabel이나 
+        PyQt5.QGroupBox로는 각 객체의 수정 및 보완에 있어 한계점을 발견해 PyQt5.GraphcisView를 통해 이를 보완 및 해결할 수있었음.
 
   #### GrapchisItemGroup 객체 CODE
     class Testset(QGraphicsItemGroup):

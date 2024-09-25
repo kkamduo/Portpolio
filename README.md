@@ -417,6 +417,23 @@
     2) Trouble Shooting
       : 작업공유 및 범용성이 떨어져 추후 개인 작업서버를 이용한 app으로 사용하게 된다면 활용도가 높아질 것으로 예상됨.
 
+  #### Google Map API주소 코드
+    # Google API Private Key
+        api_key = "API KEY"
+        
+        # 주소 역추적
+        address = reverse_geocoding(fin_a,fin_b, api_key)
+        
+        # Google Map 설명란 추가
+        description = f'Image: <a href="{test_img}">{test_img}</a>'
+        
+        # 각 지점 추가
+        pnt = kml.newpoint(name=str(num), coords=[(fin_b, fin_a)])
+        pnt.description = description
+        
+        all_data.append((address, (fin_a,fin_b), img_time, test_img))
+
+
    ### 8. RF모델을 활용한 예측
     1) 개발 내용
       - RF모델을 이용한 침강속도 예측을 진행해봄. 신뢰도 0.85 정도가 나오는걸로 결론이됨.

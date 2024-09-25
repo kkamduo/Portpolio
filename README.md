@@ -123,8 +123,7 @@
               # print(self.pos_x,self.pos_y)
               # print(self.pos_x + self.pos().x(),self.pos_y + self.pos().y())
               self.box_pos = (self.pos_x + self.pos().x(),self.pos_y + self.pos().y())
-              # if (event.scenePos().x()-self.pix > 0 and event.scenePos().y()-self.pix > 0 
-              #     and event.scenePos().y()+self.pix < 900 and event.scenePos().x()+self.pix < 1200): 
+              
               if (self.box_pos[0]-self.pix > 0 and self.box_pos[1]-self.pix > 0 
                   and self.box_pos[1]+self.pix < 900 and self.box_pos[0]+self.pix < 1200): 
                   self.bb.setPen(Qt.green)

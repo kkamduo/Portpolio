@@ -186,7 +186,8 @@
       - KT에서 제공하는 서버내의 DB를 활용하여 Arduino센서의 데이터를 서버로 전송. (pymysql 이용)
       - 추가적으로 실시간 데이터 확인 및 데이터 핸들링을 위하여 GUI를 만듬. 
       (실시간 animation을 이용하기 위해 animation.FuncAnimation이라는 함수 사용)
-      - 윈도우 환경이 아닌 CLI환경(LINUX)에서도 실시간 데이터를 활용할수 있도록 채팅소켓을 열어 활용 가능하도록 추가함. (socketserver modulue 활용)
+      - 윈도우 환경이 아닌 CLI환경(LINUX)에서도 실시간 데이터를 활용할수 있도록 채팅소켓을 열어 활용 가능하도록 추가함. 
+      (socketserver modulue 활용)
       - 추가적으로 데이터 송수신 및 외부 접속시도들을 파악하기위해 Wireshark라는 app도 이용해봄. (보안파트 지식 부족)
     2) Trouble Shooting
       - 문제 배경
@@ -277,6 +278,7 @@
     1) 개발 내용
       - YOLOv5를 베이스로 하는 Deepsort모델을 활용하여 GUI와 합쳐 실시간 Object Tracking 및 Roi영역 지정 후 Roi내만 추적하는 기능들을 추가
       또한 Object Tracking과 Roi 지정을 실시간으로 작동하여야했기에 각각의 기능에 Thread를 활용함.
+      (YOLOv5 사용)
     2) Trouble Shooting
       - 문제 배경
         : 딥러닝을 활용하는 GUI이기에 실시간 처리속도가 현저히 느려졌으며 영상의 크기 및 객체수에 따라 기능 차이가 심함.

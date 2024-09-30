@@ -395,12 +395,23 @@
    ### 5. 엑셀데이터 가시화 및 관리 GUI
     1) 개발 내용
       - 여러 엑셀파일들에 들어가있는 내용들을 각 항목별 및 세부사항을 취합하여 가시성 및 관리성을 높이는 GUI를 개발.
+      - 동일한 단어가 들어가있는 내용들을 DF화 시킨후 중복 데이터를 취합하여 최적화 시켜 저장함.
       (Pandas 활용)
     2) Trouble Shooting
       - 문제 배경
         : 직접 엑셀파일을 집어 넣어야해주는 방법이 다소 귀찮고 복잡함.
       - 해결 방법
         : 차후 실질적인 관리 프로그램과 연동하여 서버에 직접 핸들링한다면 가시성과 관리성 둘다 높은 효율을 나타낼 것으로 생각됨.
+
+   #### 데이터 갱신 Function
+   def update_data_from_dataframe():
+    global data
+    # 데이터 딕셔너리 업데이트
+    data = df.groupby('품명').agg({
+        'LOT No.': lambda x: list(x),
+        '재고수량': lambda x: list(x),
+        '실수량': lambda x: list(x) if '실수량' in df.columns else [0.0] * len(x)
+    }).reset_index().set_index('품명').to_dict(orient='index')
 
    ####
 

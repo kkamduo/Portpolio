@@ -404,14 +404,14 @@
         : 차후 실질적인 관리 프로그램과 연동하여 서버에 직접 핸들링한다면 가시성과 관리성 둘다 높은 효율을 나타낼 것으로 생각됨.
 
    #### 데이터 갱신 Function
-   def update_data_from_dataframe():
-    global data
-    # 데이터 딕셔너리 업데이트
-    data = df.groupby('품명').agg({
-        'LOT No.': lambda x: list(x),
-        '재고수량': lambda x: list(x),
-        '실수량': lambda x: list(x) if '실수량' in df.columns else [0.0] * len(x)
-    }).reset_index().set_index('품명').to_dict(orient='index')
+     def update_data_from_dataframe():
+      global data
+      # 데이터 딕셔너리 업데이트
+      data = df.groupby('품명').agg({
+          'LOT No.': lambda x: list(x),
+          '재고수량': lambda x: list(x),
+          '실수량': lambda x: list(x) if '실수량' in df.columns else [0.0] * len(x)
+      }).reset_index().set_index('품명').to_dict(orient='index')
 
    ####
 
